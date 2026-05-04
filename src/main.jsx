@@ -12,6 +12,8 @@ import RebalancePage from './pages/RebalancePage';
 import AutoInvestingPage from './pages/AutoInvestingPage';
 import HelpPage from './pages/HelpPage';
 import ProfileSettingsPage from './pages/ProfileSettingsPage';
+import LoginPage from './pages/LoginPage';
+import { clearSession, loadSession, saveSession } from './authDb';
 
 const navItems = ['Dashboard', 'Portfolio Performance', 'Goals', 'Investments', 'Trading', 'AI Advisor', 'Credit', 'Settings', 'Help'];
 
@@ -141,7 +143,7 @@ function ChatIcon() {
 
 /* ---------- Top Nav ---------- */
 
-function TopNav({ active, onNavigate }) {
+function TopNav({ active, onNavigate, currentUser, onLogout }) {
     return (
         <header className="topbar">
             <button className="brand" onClick={() => onNavigate('dashboard')}>FinanceHub</button>
@@ -177,7 +179,13 @@ function TopNav({ active, onNavigate }) {
                     <SearchIcon />
                     <span>Search</span>
                 </div>
+                {currentUser && (
+                    <button className="user-chip" onClick={() => onNavigate('profile')}>
+                        {currentUser.firstName} {currentUser.lastName}
+                    </button>
+                )}
                 <button className="avatar-button" aria-label="Profile" onClick={() => onNavigate('profile')}><UserIcon /></button>
+                <button className="logout-button" onClick={onLogout}>Log Out</button>
             </div>
         </header>
     );
@@ -208,7 +216,7 @@ function QuickActionButton({ icon, label, sub, onClick }) {
   );
 }
 
-function DashboardPage({ onNavigate }) {
+function DashboardPage({ onNavigate, currentUser, onLogout }) {
   // Each Quick Action is wired to a route name. The actual sub-pages
   // are not implemented yet — clicking just updates the URL hash so
   // future pages can be plugged into the router below.
@@ -216,10 +224,10 @@ function DashboardPage({ onNavigate }) {
 
   return (
     <>
-      <TopNav active="Dashboard" onNavigate={onNavigate} />
+      <TopNav active="Dashboard" onNavigate={onNavigate} currentUser={currentUser} onLogout={onLogout} />
       <main className="page dashboard-page">
         <section className="welcome-panel">
-          <h1>Welcome back, Nishant</h1>
+          <h1>Welcome back, {currentUser?.firstName || 'Nishant'}</h1>
           <p className="welcome-sub">Here's your portfolio overview for March 8, 2026</p>
 
           <div className="portfolio-grid">
@@ -347,10 +355,10 @@ function RangeTabs() {
   );
 }
 
-function PortfolioPerformancePage({ onNavigate }) {
+function PortfolioPerformancePage({ onNavigate, currentUser, onLogout }) {
   return (
     <>
-      <TopNav active="Portfolio Performance" onNavigate={onNavigate} />
+      <TopNav active="Portfolio Performance" onNavigate={onNavigate} currentUser={currentUser} onLogout={onLogout} />
       <main className="page portfolio-page">
         <section className="panel perf-panel">
           <div className="perf-header">
@@ -487,10 +495,10 @@ function DebtBreakdown() {
   );
 }
 
-function CreditPage({ onNavigate }) {
+function CreditPage({ onNavigate, currentUser, onLogout }) {
   return (
     <>
-      <TopNav active="Credit & Debt" onNavigate={onNavigate} />
+      <TopNav active="Credit & Debt" onNavigate={onNavigate} currentUser={currentUser} onLogout={onLogout} />
       <main className="page credit-page">
         <p className="breadcrumb">Home / Credit & Debt</p>
         <h1>Credit & Debt Management</h1>
@@ -583,10 +591,10 @@ function PersonalInformationCard() {
   );
 }
 
-function SettingsPage({ onNavigate }) {
+function SettingsPage({ onNavigate, currentUser, onLogout }) {
   return (
     <>
-      <TopNav active="Settings" onNavigate={onNavigate} />
+      <TopNav active="Settings" onNavigate={onNavigate} currentUser={currentUser} onLogout={onLogout} />
       <main className="page settings-page">
         <p className="breadcrumb">Account / Settings</p>
         <h1>Profile Settings</h1>
@@ -629,6 +637,7 @@ function App() {
   }, []);
 
   const [page, setPage] = useState(initialPage);
+  const [currentUser, setCurrentUser] = useState(() => loadSession());
 
   const navigate = (next) => {
     setPage(VALID_PAGES.includes(next) ? next : 'dashboard');
@@ -636,23 +645,43 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const handleAuthenticated = (user) => {
+    saveSession(user);
+    setCurrentUser(user);
+    navigate('dashboard');
+  };
+
+  const handleLogout = () => {
+    clearSession();
+    setCurrentUser(null);
+    window.location.hash = '';
+  };
+
+  if (!currentUser) {
+    return <LoginPage onAuthenticated={handleAuthenticated} />;
+  }
+
+  const AuthTopNav = (props) => (
+    <TopNav {...props} currentUser={currentUser} onLogout={handleLogout} />
+  );
+
   switch (page) {
-      case 'trading':           return <TradingPage onNavigate={navigate} TopNav={TopNav} />;
-      case 'investment-advice': return <InvestmentAdvicePage onNavigate={navigate} TopNav={TopNav} />;
-      case 'reports':           return <ReportsPage onNavigate={navigate} TopNav={TopNav} />;
-    case 'chatbot':           return <ChatbotPage onNavigate={navigate} TopNav={TopNav} />;
-    case 'goals':             return <GoalsPage onNavigate={navigate} TopNav={TopNav} />;
-    case 'investments':       return <InvestmentsPage onNavigate={navigate} TopNav={TopNav} />;
-    case 'add-funds':         return <AddFundsPage onNavigate={navigate} TopNav={TopNav} />;
-    case 'rebalance':         return <RebalancePage onNavigate={navigate} TopNav={TopNav} />;
-    case 'auto-investing':    return <AutoInvestingPage onNavigate={navigate} TopNav={TopNav} />;
-    case 'help':              return <HelpPage onNavigate={navigate} TopNav={TopNav} />;
-    case 'profile':           return <ProfileSettingsPage onNavigate={navigate} TopNav={TopNav} />;
-    case 'portfolio': return <PortfolioPerformancePage onNavigate={navigate} />;
-    case 'credit':    return <CreditPage onNavigate={navigate} />;
-    case 'settings':  return <SettingsPage onNavigate={navigate} />;
+      case 'trading':           return <TradingPage onNavigate={navigate} TopNav={AuthTopNav} />;
+      case 'investment-advice': return <InvestmentAdvicePage onNavigate={navigate} TopNav={AuthTopNav} />;
+      case 'reports':           return <ReportsPage onNavigate={navigate} TopNav={AuthTopNav} />;
+    case 'chatbot':           return <ChatbotPage onNavigate={navigate} TopNav={AuthTopNav} />;
+    case 'goals':             return <GoalsPage onNavigate={navigate} TopNav={AuthTopNav} />;
+    case 'investments':       return <InvestmentsPage onNavigate={navigate} TopNav={AuthTopNav} />;
+    case 'add-funds':         return <AddFundsPage onNavigate={navigate} TopNav={AuthTopNav} />;
+    case 'rebalance':         return <RebalancePage onNavigate={navigate} TopNav={AuthTopNav} />;
+    case 'auto-investing':    return <AutoInvestingPage onNavigate={navigate} TopNav={AuthTopNav} />;
+    case 'help':              return <HelpPage onNavigate={navigate} TopNav={AuthTopNav} />;
+    case 'profile':           return <ProfileSettingsPage onNavigate={navigate} TopNav={AuthTopNav} currentUser={currentUser} />;
+    case 'portfolio': return <PortfolioPerformancePage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />;
+    case 'credit':    return <CreditPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />;
+    case 'settings':  return <SettingsPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />;
     case 'dashboard':
-    default:          return <DashboardPage onNavigate={navigate} />;
+    default:          return <DashboardPage onNavigate={navigate} currentUser={currentUser} onLogout={handleLogout} />;
   }
 }
 

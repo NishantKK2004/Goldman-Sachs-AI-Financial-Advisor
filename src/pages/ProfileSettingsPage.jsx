@@ -15,9 +15,11 @@ function ProfileField({ label, value, wide }) {
     );
 }
 
-export default function ProfileSettingsPage({ onNavigate, TopNav }) {
+export default function ProfileSettingsPage({ onNavigate, TopNav, currentUser }) {
     const [paperless, setPaperless] = useState(true);
     const [marketAlerts, setMarketAlerts] = useState(true);
+    const initials = `${currentUser?.firstName?.[0] || 'N'}${currentUser?.lastName?.[0] || 'D'}`.toUpperCase();
+    const fullName = currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'Nishant Desai';
 
     return (
         <>
@@ -34,8 +36,8 @@ export default function ProfileSettingsPage({ onNavigate, TopNav }) {
 
                 <div className="ps-grid">
                     <aside className="ps-panel ps-profile-card">
-                        <div className="ps-avatar">ND</div>
-                        <div className="ps-name">Nishant Desai</div>
+                        <div className="ps-avatar">{initials}</div>
+                        <div className="ps-name">{fullName}</div>
                         <div className="ps-meta">Premium Client / Moderate Growth</div>
                         <button className="t-btn-outline full">Upload Photo</button>
                         <div className="ps-score">
@@ -48,9 +50,9 @@ export default function ProfileSettingsPage({ onNavigate, TopNav }) {
                     <section className="ps-panel">
                         <div className="ps-section-title">Personal Information</div>
                         <div className="ps-form-grid">
-                            <ProfileField label="First Name" value="Nishant" />
-                            <ProfileField label="Last Name" value="Desai" />
-                            <ProfileField label="Email" value="nishant.desai@example.com" />
+                            <ProfileField label="First Name" value={currentUser?.firstName || 'Nishant'} />
+                            <ProfileField label="Last Name" value={currentUser?.lastName || 'Desai'} />
+                            <ProfileField label="Email" value={currentUser?.email || 'nishant.desai@example.com'} />
                             <ProfileField label="Phone" value="+1 (555) 123-4567" />
                             <ProfileField label="Address" value="123 Main Street, Apt 4B" wide />
                             <ProfileField label="City" value="New York" />
