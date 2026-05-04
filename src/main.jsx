@@ -5,6 +5,13 @@ import TradingPage from './pages/TradingPage';
 import InvestmentAdvicePage from './pages/InvestmentAdvicePage';
 import ReportsPage  from './pages/ReportsPage';
 import ChatbotPage  from './pages/ChatbotPage';
+import GoalsPage from './pages/GoalsPage';
+import InvestmentsPage from './pages/InvestmentsPage';
+import AddFundsPage from './pages/AddFundsPage';
+import RebalancePage from './pages/RebalancePage';
+import AutoInvestingPage from './pages/AutoInvestingPage';
+import HelpPage from './pages/HelpPage';
+import ProfileSettingsPage from './pages/ProfileSettingsPage';
 
 const navItems = ['Dashboard', 'Portfolio Performance', 'Goals', 'Investments', 'Trading', 'AI Advisor', 'Credit', 'Settings', 'Help'];
 
@@ -150,9 +157,12 @@ function TopNav({ active, onNavigate }) {
                             onClick={() => {
                                 if (item === 'Dashboard')              onNavigate('dashboard');
                                 else if (item === 'Portfolio Performance') onNavigate('portfolio');
+                                else if (item === 'Goals')             onNavigate('goals');
+                                else if (item === 'Investments')       onNavigate('investments');
                                 else if (item === 'Trading')           onNavigate('trading');
                                 else if (item === 'AI Advisor')        onNavigate('investment-advice');
                                 else if (item === 'Settings')          onNavigate('settings');
+                                else if (item === 'Help')              onNavigate('help');
                                 else if (item === 'Credit')            onNavigate('credit');
                                 else onNavigate('dashboard');
                             }}
@@ -167,7 +177,7 @@ function TopNav({ active, onNavigate }) {
                     <SearchIcon />
                     <span>Search</span>
                 </div>
-                <button className="avatar-button" aria-label="Profile"><UserIcon /></button>
+                <button className="avatar-button" aria-label="Profile" onClick={() => onNavigate('profile')}><UserIcon /></button>
             </div>
         </header>
     );
@@ -247,9 +257,9 @@ function DashboardPage({ onNavigate }) {
           <h2>Quick Actions</h2>
           <div className="quick-actions-grid">
             <QuickActionButton icon={<PlusIcon />}    label="Add Funds"   sub="Deposit money"      onClick={() => handleAction('add-funds')} />
-            <QuickActionButton icon={<SwapIcon />}    label="Trade"       sub="Buy or sell"        onClick={() => handleAction('trade')} />
+            <QuickActionButton icon={<SwapIcon />}    label="Trade"       sub="Buy or sell"        onClick={() => handleAction('trading')} />
             <QuickActionButton icon={<ClockIcon />}   label="Rebalance"   sub="Optimize portfolio" onClick={() => handleAction('rebalance')} />
-            <QuickActionButton icon={<ArrowUpIcon />} label="Invest More" sub="Auto-invest"        onClick={() => handleAction('invest-more')} />
+            <QuickActionButton icon={<ArrowUpIcon />} label="Invest More" sub="Auto-invest"        onClick={() => handleAction('auto-investing')} />
             <QuickActionButton icon={<DocIcon />}     label="Reports"     sub="View statements"    onClick={() => handleAction('reports')} />
             <QuickActionButton icon={<ChatIcon />}    label="Ask AI"      sub="Get advice"         onClick={() => handleAction('chatbot')} />
           </div>
@@ -594,7 +604,23 @@ function SettingsPage({ onNavigate }) {
    yet. The router falls through to the dashboard for unknown values.
    To wire one up later, build a component and add a case to the switch. */
 
-const VALID_PAGES = ['dashboard', 'portfolio', 'credit', 'settings', 'trading', 'investment-advice', 'reports', 'chatbot'];
+const VALID_PAGES = [
+  'dashboard',
+  'portfolio',
+  'goals',
+  'investments',
+  'credit',
+  'settings',
+  'trading',
+  'investment-advice',
+  'reports',
+  'chatbot',
+  'add-funds',
+  'rebalance',
+  'auto-investing',
+  'help',
+  'profile',
+];
 
 function App() {
   const initialPage = useMemo(() => {
@@ -615,6 +641,13 @@ function App() {
       case 'investment-advice': return <InvestmentAdvicePage onNavigate={navigate} TopNav={TopNav} />;
       case 'reports':           return <ReportsPage onNavigate={navigate} TopNav={TopNav} />;
     case 'chatbot':           return <ChatbotPage onNavigate={navigate} TopNav={TopNav} />;
+    case 'goals':             return <GoalsPage onNavigate={navigate} TopNav={TopNav} />;
+    case 'investments':       return <InvestmentsPage onNavigate={navigate} TopNav={TopNav} />;
+    case 'add-funds':         return <AddFundsPage onNavigate={navigate} TopNav={TopNav} />;
+    case 'rebalance':         return <RebalancePage onNavigate={navigate} TopNav={TopNav} />;
+    case 'auto-investing':    return <AutoInvestingPage onNavigate={navigate} TopNav={TopNav} />;
+    case 'help':              return <HelpPage onNavigate={navigate} TopNav={TopNav} />;
+    case 'profile':           return <ProfileSettingsPage onNavigate={navigate} TopNav={TopNav} />;
     case 'portfolio': return <PortfolioPerformancePage onNavigate={navigate} />;
     case 'credit':    return <CreditPage onNavigate={navigate} />;
     case 'settings':  return <SettingsPage onNavigate={navigate} />;
