@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 import TradingPage from './pages/TradingPage';
 import InvestmentAdvicePage from './pages/InvestmentAdvicePage';
+import ReportsPage  from './pages/ReportsPage';
+import ChatbotPage  from './pages/ChatbotPage';
 
 const navItems = ['Dashboard', 'Portfolio Performance', 'Goals', 'Investments', 'Trading', 'AI Advisor', 'Credit', 'Settings', 'Help'];
 
@@ -152,6 +154,7 @@ function TopNav({ active, onNavigate }) {
                                 else if (item === 'AI Advisor')        onNavigate('investment-advice');
                                 else if (item === 'Settings')          onNavigate('settings');
                                 else if (item === 'Credit')            onNavigate('credit');
+                                else if (item === 'Reports')            onNavigate('reports');
                                 else onNavigate('dashboard');
                             }}
                         >
@@ -249,7 +252,7 @@ function DashboardPage({ onNavigate }) {
             <QuickActionButton icon={<ClockIcon />}   label="Rebalance"   sub="Optimize portfolio" onClick={() => handleAction('rebalance')} />
             <QuickActionButton icon={<ArrowUpIcon />} label="Invest More" sub="Auto-invest"        onClick={() => handleAction('invest-more')} />
             <QuickActionButton icon={<DocIcon />}     label="Reports"     sub="View statements"    onClick={() => handleAction('reports')} />
-            <QuickActionButton icon={<ChatIcon />}    label="Ask AI"      sub="Get advice"         onClick={() => handleAction('ask-ai')} />
+            <QuickActionButton icon={<ChatIcon />}    label="Ask AI"      sub="Get advice"         onClick={() => handleAction('chatbot')} />
           </div>
         </section>
       </main>
@@ -592,7 +595,7 @@ function SettingsPage({ onNavigate }) {
    yet. The router falls through to the dashboard for unknown values.
    To wire one up later, build a component and add a case to the switch. */
 
-const VALID_PAGES = ['dashboard', 'portfolio', 'credit', 'settings', 'trading', 'investment-advice'];
+const VALID_PAGES = ['dashboard', 'portfolio', 'credit', 'settings', 'trading', 'investment-advice', 'reports', 'chatbot'];
 
 function App() {
   const initialPage = useMemo(() => {
@@ -611,6 +614,8 @@ function App() {
   switch (page) {
       case 'trading':           return <TradingPage onNavigate={navigate} TopNav={TopNav} />;
       case 'investment-advice': return <InvestmentAdvicePage onNavigate={navigate} TopNav={TopNav} />;
+      case 'reports':           return <ReportsPage onNavigate={navigate} TopNav={TopNav} />;
+      case 'chatbot':           return <ChatbotPage onNavigate={navigate} TopNav={TopNav} />;
     case 'portfolio': return <PortfolioPerformancePage onNavigate={navigate} />;
     case 'credit':    return <CreditPage onNavigate={navigate} />;
     case 'settings':  return <SettingsPage onNavigate={navigate} />;
